@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+  db:
+    image: mysql:5.7
+    container_name: ruby_app_db
+    env_file:
+      - ./enviroments/db.env
+    restart: always
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./db-data/data:/var/lib/mysql
+      - ./db-data/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./db-data/sql:/docker-entrypoint-initdb.d
+      # - "backend-bundle:/usr/local/bundle"
+    ports:
+      - 3308:3306
+
+  backend:
+    container_name: ruby_app_backend
+    build: ./back
+    command: /bin/sh -c "rm -f /app/tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    volumes:
+      - ./back:/myapp
+      - backend-bundle:/usr/local/bundle
+    depends_on:
+      - db
+    ports:
+      - 3000:3000
+    tty: true
+    stdin_open: true
+
+  frontend:
+    container_name: ruby_app_frontend
+    build: ./front
+    command: /bin/sh -c "yarn dev"
+    volumes:
+      - ./front:/myapp
+      - frontend-node_modules:/myapp/node_modules
+    ports:
+      - 8002:8002
+    depends_on:
+      - backend
+    tty: true
+
+volumes:
+  db-data:
+  backend-bundle:
+  frontend-node_modules:
