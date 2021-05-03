@@ -7,11 +7,11 @@ restart:
 stop:
 	docker-compose stop
 
-back:
-	docker-compose exec ruby_app_backend bash
+backend:
+	docker-compose exec backend sh
 
-front:
-	docker-compose exec ruby_app_frontend bash
+frontend:
+	docker-compose exec frontend sh
 
 db-host:
 	docker exec -it ruby_app_db bash
